@@ -1,0 +1,48 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Number of simulations
+n_simulations = 1000000
+
+# Define the range of correlations
+correlations = np.linspace(0, 1, 20)
+
+# Initialize empty lists to store the probabilities
+prob_at_least_one_risk = []
+prob_at_least_two_risks = []
+prob_all_risks = []
+
+for rho in correlations:
+    # Correlation matrix
+    corr_matrix = np.array([[1, rho, rho], [rho, 1, rho], [rho, rho, 1]])
+
+    # Compute the covariance matrix
+    std_dev = np.sqrt(0.05 * (1 - 0.05))  # Standard deviation for a Bernoulli distribution
+    cov_matrix = corr_matrix * std_dev**2
+
+    # Generate correlated random variables
+    rng = np.random.default_rng()
+    x = rng.multivariate_normal([0, 0, 0], cov_matrix, size=n_simulations)
+
+    # Apply the inverse probit function to get Bernoulli-distributed variables
+    risks = (x > np.percentile(x, 95)).astype(int)
+
+    # Calculate the proportion of simulations where at least one risk occurs
+    prob_at_least_one_risk.append(np.mean(np.any(risks, axis=1)))
+
+    # Calculate the proportion of simulations where at least two risks occur
+    prob_at_least_two_risks.append(np.mean(np.sum(risks, axis=1) >= 2))
+
+    # Calculate the proportion of simulations where all risks occur
+    prob_all_risks.append(np.mean(np.all(risks, axis=1)))
+
+# Create the plot
+plt.plot(correlations, prob_at_least_one_risk, label='At least one risk')
+plt.plot(correlations, prob_at_least_two_risks, label='At least two risks')
+plt.plot(correlations, prob_all_risks, label='All risks')
+plt.xlabel('Correlation')
+plt.ylabel('Probability')
+plt.title('Probability vs Correlation')
+plt.legend()
+plt.grid(True)
+plt.show()
