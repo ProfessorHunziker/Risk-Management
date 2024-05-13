@@ -1,0 +1,40 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+# EBIT-Planwert
+ebit = 10000
+
+# Risiken (Variablen)
+risiken = np.array(['Wechselkurse', 'Marketingkosten', 'Produktionskosten', 'Rohmaterialien', 'Verkaufpsreise'])
+
+# Min und Max Werte der Risiken
+min_werte = np.array([300, 2200, 4000, 7820, 8800])
+max_werte = np.array([19500, 16000, 13500, 11575, 11100])
+
+# Breite der Balken berechnen
+breite = max_werte - min_werte
+
+# Sortieren Sie die Risiken und ihre Werte nach der Breite der Balken
+sort_index = np.argsort(breite)
+risiken = risiken[sort_index]
+min_werte = min_werte[sort_index]
+max_werte = max_werte[sort_index]
+
+# Erstellen Sie das Tornadodiagramm
+fig, ax = plt.subplots()
+
+# Zeichnen Sie die Balken für die Min und Max Werte
+ax.barh(risiken[::-1], max_werte - ebit, left=ebit, color='green', label='Max Wert')
+ax.barh(risiken[::-1], min_werte - ebit, left=ebit, color='red', label='Min Wert')
+
+# Zentrieren Sie die Y-Achse auf den EBIT-Planwert
+ax.set_xlim([0, max(max_werte)])
+
+# Beschriftungen
+ax.set_xlabel('Abweichung vom EBIT-Planwert (CHF 10000)')
+ax.set_title('EBIT at Risk (90% Confidence)')
+
+# Legende hinzufügen
+ax.legend()
+
+plt.show()
